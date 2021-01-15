@@ -10,7 +10,7 @@ design and development:
 system produced by combining each individual element.
 * [BootFox32](https://github.com/RedFox0x20/BootFox32) - This repository! The
 bootloader that kick starts any other OS projects.
-* FileFox32 - A future project for the design and development of a FileSystem which can be
+* [FileFox32](https://github.com/RedFox0x20/FileFox32) - A future project for the design and development of a FileSystem which can be
 used
 
 As always, these are for my own research and development! They are not intended
