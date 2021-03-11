@@ -3,7 +3,7 @@
 [ORG 0x7C00]
 [BITS 16]
 
-; A standard design to just jump over some disk information
+; A standard dsign to just jump over some disk information
 ; This is a part of the FAT standard but I will borrow it for easy of the
 ; following structure
 ; [JUMP with some good measure NOP padding]
@@ -16,24 +16,20 @@ nop
 
 FILE_SYSTEM_HEADER:
 ; FS identification
-FSH_Magic:					dw "RF"
+FSH_Magic:					db "RF"
+FSH_BootFlag:				db 1
 ; Drive data
 FSH_DriveName:				db "RedFox32"
 FSH_DriveNumber: 			db 0
-FSH_NumCylinders:			dw 2880
+FSH_NumCylinders:			db 160 
 FSH_NumHeads:				db 2
 FSH_NumSectorsPerCylinder:	db 18
 ; FS Parameters
-FSH_ReservedCylinders:		dw 1
-FSH_RootCylinder:			dw 2
+FSH_ReservedCylinders:		db 1
+FSH_RootCylinder:			db 2
+FSH_RootSector:				db 1
+FSH_RootSectorMapLength:	db 1
 
-; DATA
-LoadAttemptsCounter:		db 3
-
-; String ends in [CR][LF][NULL] otherwise they seem to misbehave
-%define STRING_END 0x0D, 0x0A, 0x00
-STR_STAGE1: db "BOOT STAGE 1", 0x0D, 0xA, "LOADING STAGE 2...", STRING_END
-STR_DISK_ERROR: db "DISK ERROR LOADING...", STRING_END
 
 ; CODE
 Boot:
@@ -51,7 +47,10 @@ VideoSetup:
 	mov si, STR_STAGE1
 	call print_str
 
-	sti
+BootCheck:
+	movzx ax, byte [FSH_BootFlag]
+	test ax, ax
+	jz NotABootableDrive 
 	
 DiskSetup:
 	mov ax, 0x0000
@@ -80,6 +79,9 @@ RegisterInit:
 
 	sti
 
+	mov si, STR_STAGE2
+	call print_str
+
 Load:
 	; Test to see if we should attempt to load or bail out
 	mov al, byte [LoadAttemptsCounter]
@@ -89,6 +91,12 @@ Load:
 	; Decrement the counter
 	dec al
 	mov byte [LoadAttemptsCounter], al
+
+	mov si, STR_LOAD
+	call print_str
+
+	mov si, 0
+	mov di, 0
 
 	; Load the remaining bootloader sectors
 	mov ah, 0x02
@@ -118,16 +126,30 @@ LoadError:
 	; continue then we just loop back.
 STOP:
 	sti
-	mov ah, 0x0E
-	mov al, 'S'
-	mov bx, 0x0004
-	int 0x10
+	mov si, STR_STOP
+	call print_str
 	cli
 	hlt
 	jmp STOP
 
+NotABootableDrive:
+	mov si, STR_NOT_BOOTABLE
+	call print_str
+	jmp STOP
+
 %include "Source/Shared/print_str.asm"
 
+; DATA
+LoadAttemptsCounter:		db 3
+
+; String ends in [CR][LF][NULL] otherwise they seem to misbehave
+%define STRING_END 0x0D, 0x0A, 0x00
+STR_STAGE1: db "BOOT STAGE 1", STRING_END
+STR_STAGE2: db "LOADING STAGE 2...", STRING_END
+STR_LOAD: db "LOAD", STRING_END
+STR_DISK_ERROR: db "DISK ERROR LOADING...", STRING_END
+STR_NOT_BOOTABLE: db "THIS IS NOT A BOOTABLE DRIVE!", STRING_END
+STR_STOP: db "STOP", STRING_END
 ; Move to the end of the sector and write the magic boot signature bytes
 times 510 - ($ - $$) db 0
 BootSignature: dw 0xAA55

@@ -1,7 +1,6 @@
 ; PRINT_STR - Print a NULL terminated string
 ; SI = string
 print_str:
-	pusha
 	mov ah, 0x0E
 	xor bx, bx
 .Loop:
@@ -12,6 +11,5 @@ print_str:
 	inc si
 	jmp .Loop
 .Done:
-	popa
 	ret
 
