@@ -26,8 +26,9 @@ FSH_NumHeads:				db 2
 FSH_NumSectorsPerCylinder:	db 18
 ; FS Parameters
 FSH_ReservedCylinders:		db 1
-FSH_RootCylinder:			db 2
-FSH_RootSector:				db 1
+FSH_RootCylinder:			db 0
+FSH_RootSector:				db 17
+FSH_RootHead:				db 0
 FSH_RootSectorMapLength:	db 1
 
 
@@ -54,17 +55,20 @@ BootCheck:
 	
 DiskSetup:
 	mov ax, 0x0000
-	mov dx, 1 << 6
+	mov dx, [FSH_DriveNumber] 
 	int 0x13
 
 	; Initialise some of the registers
 RegisterInit:
 	cli
 
-	; Clear the Source/Dest pointer registers
-	xor ax, ax	
-	mov si, ax
-	mov di, ax
+	; Clear registers, 32 bit
+	xor eax, eax
+	mov ebx, eax
+	mov ecx, eax
+	mov edx, eax
+	mov esi, eax
+	mov edi, eax
 	
 	; Ensure segment registers other than CS and SS are cleared
 	mov ds, ax
