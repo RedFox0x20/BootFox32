@@ -45,6 +45,6 @@ STOP:
 
 %include "Source/Shared/print_str.asm"
 
-%include "Source/Shared/CreateMemoryMap.asm"
+%include "Source/Stage2/CreateMemoryMap.asm"
 
 %include "Source/Stage2/FS.asm"
