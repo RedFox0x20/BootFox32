@@ -1,3 +1,4 @@
+[BITS 16]
 ; Use the INT 0x15, eax = 0xE820 BIOS function to get a memory map
 ; note: initially di is 0, be sure to set it to a value so that the BIOS
 ;       code will not be overwritten. The consequence of overwriting the BIOS
@@ -6,8 +7,8 @@
 ; outputs: bp = entry count, trashes all registers except esi
 ; CODE FROM:
 ; https://wiki.osdev.org/Detecting_Memory_(x86)#Getting_an_E820_Memory_Map
-; 0x8000 = uint32 num entries
-; 0x8004+ = Entries see mmap_qemu.txt
+; 0x2900 = uint32 num entries
+; 0x2904 = Entries see mmap_qemu.txt
 CreateMemoryMap:
 	pusha
 	mov si, STR_CREATING_MEMORY_MAP
