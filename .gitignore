@@ -1,3 +1,5 @@
 *.o
 *.bin
+Makefile
+Kernel.kernel
 Floppy.img
