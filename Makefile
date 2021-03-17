@@ -22,11 +22,22 @@ run: Floppy
 run_tty: Floppy
 	qemu-system-i386 -nographic -fda ./Floppy.img
 
+run_kernel: Floppy
+	dd if=./Kernel.kernel of=./Floppy.img bs=512 seek=18 conv=notrunc && \
+		  qemu-system-i386 -fda ./Floppy.img
+
 Floppy: all 
 	dd if=/dev/zero of=./Floppy.img bs=512 count=2880 conv=notrunc
 	dd if=./Build/Stage1/Bootsector.bin of=./Floppy.img bs=512 conv=notrunc
 	dd if=./Build/Stage2/Stage2.bin of=./Floppy.img bs=512 seek=1 conv=notrunc
 	dd if=./Build/Stage2/FSRoot.bin of=./Floppy.img bs=512 seek=16 conv=notrunc
+	# Kern write ex: dd if=./Kernel.bin of=./Floppy.igm bs=512 seek=18 conv=notrunc
+
+usb: all
+	dd if=./Build/Stage1/Bootsector.bin of=/dev/sdc bs=512 conv=notrunc
+	dd if=./Build/Stage2/Stage2.bin of=/dev/sdc bs=512 seek=1 conv=notrunc
+	dd if=./Build/Stage2/FSRoot.bin of=/dev/sdc bs=512 seek=16 conv=notrunc
+
 
 clean:
 	rm -rf Build

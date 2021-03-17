@@ -36,7 +36,7 @@ FSH_RootSectorMapLength:	db 1
 Boot:
 	; A standard feature is that the BIOS will leave the boot drive number
 	; in bl, this is useful for int 0x13 functions.
-	mov [FSH_DriveNumber], bl
+	mov byte [FSH_DriveNumber], bl
 
 	; Enter a known video state
 	; 80x25 column
@@ -53,10 +53,6 @@ BootCheck:
 	test ax, ax
 	jz NotABootableDrive 
 	
-DiskSetup:
-	mov ax, 0x0000
-	mov dx, [FSH_DriveNumber] 
-	int 0x13
 
 	; Initialise some of the registers
 RegisterInit:
@@ -88,19 +84,18 @@ RegisterInit:
 
 Load:
 	; Test to see if we should attempt to load or bail out
-	mov al, byte [LoadAttemptsCounter]
-	test al, al
-	jz LoadError 
+	;mov ax, word [LoadAttemptsCounter]
+	;test ax, ax
+	;jz LoadError 
 
 	; Decrement the counter
 	dec al
 	mov byte [LoadAttemptsCounter], al
-
-	mov si, STR_LOAD
-	call print_str
-
-	mov si, 0
-	mov di, 0
+DiskSetup:
+	mov ax, 0x0000
+	mov dl, byte [FSH_DriveNumber] 
+	int 0x13
+	jc DiskSetup
 
 	; Load the remaining bootloader sectors
 	mov ah, 0x02
@@ -118,7 +113,8 @@ Load:
 	jne Load
 
 	; We are done here
-	jmp 0x0500 
+	mov dl, byte [FSH_DriveNumber]
+	jmp 0x0000:0x0500 
 
 	; In the event of a load error we jump here
 LoadError:
@@ -144,13 +140,11 @@ NotABootableDrive:
 %include "Source/Shared/print_str.asm"
 
 ; DATA
-LoadAttemptsCounter:		db 3
+LoadAttemptsCounter:		dw 3
 
 ; String ends in [CR][LF][NULL] otherwise they seem to misbehave
-%define STRING_END 0x0D, 0x0A, 0x00
 STR_STAGE1: db "BOOT STAGE 1", STRING_END
 STR_STAGE2: db "LOADING STAGE 2...", STRING_END
-STR_LOAD: db "LOAD", STRING_END
 STR_DISK_ERROR: db "DISK ERROR LOADING...", STRING_END
 STR_NOT_BOOTABLE: db "THIS IS NOT A BOOTABLE DRIVE!", STRING_END
 STR_STOP: db "STOP", STRING_END

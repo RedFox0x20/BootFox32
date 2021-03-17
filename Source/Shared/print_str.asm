@@ -13,3 +13,4 @@ print_str:
 .Done:
 	ret
 
+%define STRING_END 0x0D, 0x0A, 0x00

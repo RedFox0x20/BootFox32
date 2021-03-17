@@ -21,6 +21,7 @@ STR_ERR_FAILED_TO_LOAD_KERNEL: db "ERROR: FAILED TO LOAD KERNEL!", STRING_END
 STR_ERR_NO_KERNEL: db "ERROR: NO KERNEL FOUND!", STRING_END
 STR_RECOGNISE: db "FILE SYSTEM: RECOGNISE", STRING_END
 STR_LOAD_ROOT: db "FILE SYSTEM: LOAD ROOT", STRING_END 
+STR_LOAD_KERNEL: db "FILE SYSTEM: LOAD KERNEL", STRING_END
 
 FS_Recognise:
 	mov si, STR_RECOGNISE
@@ -69,10 +70,21 @@ STR_KERNEL_FILE_NAME: db "KERNEL.BIN"
 KernelCylinder: dw 0
 KernelSector: dw 0
 KernelHead: dw 0
+
 FS_LoadKernel:
+	mov si, STR_LOAD_KERNEL
+	call print_str
+
+	; We will be comparing strings at si and di
 	mov si, FS_ROOT_LOCATION
 	mov di, STR_KERNEL_FILE_NAME
-	
+
+	; TODO: The entry check does not currently know how to handle multiple
+	; 		directory sectors which may be a problem in the future.
+	;		Getting the next entry should be handled by a seperate method that
+	;		can check for this issue and have the correct entry loaded.
+	;		Doing this will also require a 512 byte section of memory to be used
+	;		solely for loading while in Real Mode.
 	.CheckEntry:
 	test si, si
 	jz .NoKernel
@@ -87,7 +99,6 @@ FS_LoadKernel:
 	jmp .CheckEntry
 
 	.Found:
-	clc
 
 	add si, 10
 	mov bx, word [si] 	; Get start sector
@@ -125,6 +136,7 @@ FS_LoadKernel:
 
 	pop ax	; Restore the command and number of sectors to load
 	
+	clc
 	int 0x13	; Load
 	jc .Error 
 

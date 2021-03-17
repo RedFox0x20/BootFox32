@@ -15,7 +15,7 @@ times 512 - ($ - $$) db 0	; Fill the rest of the sector with zeroes
 db 0b00001110
 db "KERNEL.BIN"
 dw 18
-dw 19
+dw 50
 
 times 512 - 15 - 2 db 0	; Fill bytes for the FS Root
 
