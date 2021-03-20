@@ -142,7 +142,7 @@ Stage232:
 	mov eax, dword [KERNEL_IDENTIFIER]
 	mov ebx, dword [STR_KERN_ID]
 	cmp eax, ebx
-	jne STOP32
+	jne INVALID_KERNEL
 
 	call EnableA20
 
@@ -154,6 +154,21 @@ STOP32:
 	hlt
 	jmp STOP32
 
+
+INVALID_KERNEL_STR: db "KERNEL: INVALID!", STRING_END
+INVALID_KERNEL:
+	mov esi, INVALID_KERNEL_STR
+	mov edi, 0xB8000
+	.Loop
+	mov al, byte [esi]
+	test al, al
+	jz .Done
+	mov byte [edi], al
+	inc esi
+	add edi, 2
+	jmp .Loop
+	.Done:
+	jmp STOP32
 
 ;******************************************************************************
 ; Enable A20
