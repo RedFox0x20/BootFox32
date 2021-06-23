@@ -1,4 +1,9 @@
 # BootFox32
+## Archived 23/06/2021 - Moved to [new repository](https://github.com/RedFox0x20/RedFox32_Bootloader)
+>This repository has been archived as the project is unsustainable in this format, dependancies are not clear and not proper plan of attack was produced! Additionally my development cycle changed numerous times throughout.
+This project will be continued in the [new repository](https://github.com/RedFox0x20/RedFox32_Bootloader). This repository will continue to exist until it is no longer of use to me.
+
+<hr>
 BootFox32 is an extension upon the
 [RedFox32](https://github.com/RedFox0x20/RedFox32) project with the aim to
 develop and build each component individually so that the ideas can be applied
